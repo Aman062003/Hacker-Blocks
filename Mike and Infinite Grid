@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define ld long double
+
+int dp[1001][1001];
+
+void fillDP() {
+    for(int i = 0; i < 1001; i++) {
+        for(int j = 0; j < 1001; j++) {
+            dp[i][j] = 0;
+        }
+    }
+
+    for(int i = 0; i < 1001; i++) {
+        for(int j = 0; j < 1001; j++) {
+            if(dp[i][j] == 0) {
+                for(int k = i + 1; k < 1001; k++) dp[k][j] = 1;
+                for(int k = j + 1; k < 1001; k++) dp[i][k] = 1;
+                for(int k = 1; k + i < 1001 && k + j < 1001; k++) dp[i + k][j + k] = 1;
+            }
+        }
+    }
+}
+
+void solve() {
+    int m, n, p, q; cin >> m >> n >> p >> q;
+    cout << (dp[m - p][n - q] ? "YES" : "NO") << '\n';
+}
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    ll t;
+    cin >> t;
+    fillDP();
+    while (t--)
+        solve();
+    return 0;
+}
