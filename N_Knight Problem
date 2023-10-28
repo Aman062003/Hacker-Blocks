@@ -1,0 +1,67 @@
+#include <iostream>
+#include <vector>
+#include <set>
+using namespace std;
+
+int xIncrements[] = {-1, 1, -1, 1, -2, 2, -2, 2};
+int yIncrements[] = {-2, 2, 2, -2, -1, 1, 1, -1};
+long long totalConfigurations = 0;
+set<string> resultSet;
+
+bool isSafe(vector<vector<int>>& chessboard, int x, int y, int boardSize) {
+    for (int i = 0; i < 8; i++) {
+        int xNew = x + xIncrements[i];
+        int yNew = y + yIncrements[i];
+        if (xNew >= 0 && xNew < boardSize && yNew >= 0 && yNew < boardSize)
+            if (chessboard[xNew][yNew] == 1)
+                return false;
+    }
+    return true;
+}
+
+void printSolution(vector<vector<int>>& chessboard, int boardSize) {
+    string configuration = "";
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if (chessboard[i][j] == 1)
+                configuration = configuration + "{" + to_string(i) + "-" + to_string(j) + "} ";
+        }
+    }
+    resultSet.insert(configuration);
+}
+
+void solveKnights(vector<vector<int>>& chessboard, int x, int y, int placedKnights, int boardSize) {
+    if (chessboard[x][y] == 0 && isSafe(chessboard, x, y, boardSize)) {
+        chessboard[x][y] = 1;
+        if (placedKnights == boardSize - 1) {
+            totalConfigurations++;
+            printSolution(chessboard, boardSize);
+            chessboard[x][y] = 0;
+            return;
+        }
+        for (int i = x; i < boardSize; i++) {
+            for (int j = y + 1; j < boardSize; j++) {
+                solveKnights(chessboard, i, j, placedKnights + 1, boardSize);
+            }
+        }
+        for (int i = x + 1; i < boardSize; i++) {
+            for (int j = 0; j <= y; j++) {
+                solveKnights(chessboard, i, j, placedKnights + 1, boardSize);
+            }
+        }
+        chessboard[x][y] = 0;
+    }
+}
+
+int main() {
+    int boardSize;
+    cin >> boardSize;
+    vector<vector<int>> chessboard(boardSize, vector<int>(boardSize, 0));
+    for (int i = 0; i < boardSize; i++)
+        for (int j = 0; j < boardSize; j++)
+            solveKnights(chessboard, i, j, 0, boardSize);
+    for (string configuration : resultSet)
+        cout << configuration << " ";
+    cout << "\n" << totalConfigurations;
+    return 0;
+}
