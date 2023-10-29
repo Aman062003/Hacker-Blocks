@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MOD = 1000000007;
+
+struct Node {
+    long long sum;
+};
+
+vector<Node> segment_tree;
+
+void build(int node, int start, int end, vector<int>& arr) {
+    if (start == end) {
+        segment_tree[node].sum = 0;
+        return;
+    }
+    int mid = (start + end) / 2;
+    build(2 * node, start, mid, arr);
+    build(2 * node + 1, mid + 1, end, arr);
+    segment_tree[node].sum = segment_tree[2 * node].sum + segment_tree[2 * node + 1].sum;
+}
+
+void update(int node, int start, int end, int index, int value) {
+    if (start == end) {
+        segment_tree[node].sum += value;
+        return;
+    }
+    int mid = (start + end) / 2;
+    if (index <= mid)
+        update(2 * node, start, mid, index, value);
+    else
+        update(2 * node + 1, mid + 1, end, index, value);
+    segment_tree[node].sum = segment_tree[2 * node].sum + segment_tree[2 * node + 1].sum;
+}
+
+long long query(int node, int start, int end, int left, int right) {
+    if (left > end || right < start) {
+        return 0;
+    }
+    if (left <= start && right >= end) {
+        return segment_tree[node].sum;
+    }
+    int mid = (start + end) / 2;
+    long long left_sum = query(2 * node, start, mid, left, right);
+    long long right_sum = query(2 * node + 1, mid + 1, end, left, right);
+    return left_sum + right_sum;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    vector<int> stairs(n);
+    segment_tree.resize(4 * n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> stairs[i];
+    }
+
+    build(1, 0, n - 1, stairs);
+    long long alpha_score = 0;
+
+    for (int i = 0; i < n; i++) {
+        long long smaller_sum = query(1, 0, n - 1, 0, stairs[i] - 1);
+        update(1, 0, n - 1, stairs[i], stairs[i]);
+        alpha_score = (alpha_score + smaller_sum) % MOD;
+    }
+
+    cout << alpha_score << endl;
+
+    return 0;
+}
